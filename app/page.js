@@ -32,8 +32,8 @@ export default function Home() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen py-8 px-4 max-w-screen-md mx-auto">
       <h1 className="text-4xl font-bold mb-8 md:text-5xl">3 en Raya</h1>
-      <Board board={board} onCellClick={handleCellClick} />
       <GameStatus />
+      <Board board={board} onCellClick={handleCellClick} />
       <div className="flex justify-between w-full mt-4">
         <ResetButton onReset={resetBoard} />
         <button
@@ -43,7 +43,13 @@ export default function Home() {
           Ver Ranking
         </button>
       </div>
-      <RankingModal isOpen={isModalOpen} onClose={closeModal} />
+
+      <RankingModal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        playerWins={0}
+        iaWins={0}
+      />
     </main>
   );
 }
