@@ -9,6 +9,7 @@ import { useState, useCallback } from "react";
 export default function Home() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isPlayerTurn, setIsPlayerTurn] = useState(true); // Inicialmente el jugador puede jugar
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -19,11 +20,11 @@ export default function Home() {
 
   const handleCellClick = useCallback(
     async (index) => {
-      if (board[index] === null) {
+      if (board[index] === null && isPlayerTurn) {
         const newBoard = [...board];
         newBoard[index] = "X";
         setBoard(newBoard);
-
+        setIsPlayerTurn(false);
         // Llamar al backend para obtener el movimiento de la IA
         const response = await fetch("/api/next-move", {
           method: "POST",
@@ -39,15 +40,18 @@ export default function Home() {
             const iaBoard = [...newBoard];
             iaBoard[data.nextMove] = "O";
             setBoard(iaBoard);
+            setIsPlayerTurn(true);
           } else {
             console.log("La IA no devolvió un movimiento.");
+            setIsPlayerTurn(true);
           }
         } else {
           console.error("Error al obtener el movimiento de la IA");
+          setIsPlayerTurn(true);
         }
       }
     },
-    [board, setBoard]
+    [board, isPlayerTurn, setBoard, setIsPlayerTurn]
   );
 
   return (
