@@ -18,15 +18,36 @@ export default function Home() {
   }, []);
 
   const handleCellClick = useCallback(
-    (index) => {
+    async (index) => {
       if (board[index] === null) {
         const newBoard = [...board];
-        newBoard[index] = "X"; // Jugador 'X'
+        newBoard[index] = "X";
         setBoard(newBoard);
-        //TODO Añadir posicion IA
+
+        // Llamar al backend para obtener el movimiento de la IA
+        const response = await fetch("/api/next-move", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ board: newBoard }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.nextMove !== null) {
+            const iaBoard = [...newBoard];
+            iaBoard[data.nextMove] = "O";
+            setBoard(iaBoard);
+          } else {
+            console.log("La IA no devolvió un movimiento.");
+          }
+        } else {
+          console.error("Error al obtener el movimiento de la IA");
+        }
       }
     },
-    [board]
+    [board, setBoard]
   );
 
   return (
