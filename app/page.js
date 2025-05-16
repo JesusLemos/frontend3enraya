@@ -10,6 +10,7 @@ export default function Home() {
   const [board, setBoard] = useState(Array(9).fill(null));
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isPlayerTurn, setIsPlayerTurn] = useState(true); // Inicialmente el jugador puede jugar
+  const [gameStatus, setGameStatus] = useState(null); // Para mostrar mensajes de ganador/empate
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -20,12 +21,13 @@ export default function Home() {
 
   const handleCellClick = useCallback(
     async (index) => {
-      if (board[index] === null && isPlayerTurn) {
+      if (board[index] === null && isPlayerTurn && !gameStatus) {
+        // No permitir clics si el juego terminó
         const newBoard = [...board];
         newBoard[index] = "X";
         setBoard(newBoard);
         setIsPlayerTurn(false);
-        // Llamar al backend para obtener el movimiento de la IA
+
         const response = await fetch("/api/next-move", {
           method: "POST",
           headers: {
@@ -36,14 +38,34 @@ export default function Home() {
 
         if (response.ok) {
           const data = await response.json();
+          console.log("Respuesta del backend:", data);
+
+          if (data.gameOver) {
+            setGameStatus(
+              data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
+            );
+            return;
+          }
+
           if (data.nextMove !== null) {
             const iaBoard = [...newBoard];
             iaBoard[data.nextMove] = "O";
             setBoard(iaBoard);
             setIsPlayerTurn(true);
+
+            if (data.gameOver) {
+              setGameStatus(
+                data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
+              );
+            }
           } else {
             console.log("La IA no devolvió un movimiento.");
             setIsPlayerTurn(true);
+            if (data.gameOver) {
+              setGameStatus(
+                data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
+              );
+            }
           }
         } else {
           console.error("Error al obtener el movimiento de la IA");
@@ -51,7 +73,7 @@ export default function Home() {
         }
       }
     },
-    [board, isPlayerTurn, setBoard, setIsPlayerTurn]
+    [board, isPlayerTurn, setBoard, gameStatus, setGameStatus]
   );
 
   return (
