@@ -1,32 +1,41 @@
 "use client";
 
 import Board from "./components/Board";
-import GameStatus from "./components/GameStatus";
-import RankingModal from "./components/RankingModal";
 import ResetButton from "./components/ResetButton";
+import RankingModal from "./components/RankingModal";
 import { useState, useCallback } from "react";
 
 export default function Home() {
   const [board, setBoard] = useState(Array(9).fill(null));
+  const [turn, setTurn] = useState("X");
+  const [gameStatus, setGameStatus] = useState(null);
+  const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true); // Inicialmente el jugador puede jugar
-  const [gameStatus, setGameStatus] = useState(null); // Para mostrar mensajes de ganador/empate
+  const [playerWins, setPlayerWins] = useState(0);
+  const [iaWins, setIaWins] = useState(0);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
   const resetBoard = useCallback(() => {
     setBoard(Array(9).fill(null));
+    setTurn("X");
+    setGameStatus(null);
   }, []);
 
   const handleCellClick = useCallback(
     async (index) => {
-      if (board[index] === null && isPlayerTurn && !gameStatus) {
-        // No permitir clics si el juego terminó
+      if (
+        board[index] === null &&
+        turn === "X" &&
+        !gameStatus &&
+        !isAwaitingResponse
+      ) {
         const newBoard = [...board];
         newBoard[index] = "X";
         setBoard(newBoard);
-        setIsPlayerTurn(false);
+        setTurn("O");
+        setIsAwaitingResponse(true);
 
         const response = await fetch("/api/next-move", {
           method: "POST",
@@ -39,11 +48,18 @@ export default function Home() {
         if (response.ok) {
           const data = await response.json();
           console.log("Respuesta del backend:", data);
+          setIsAwaitingResponse(false);
 
           if (data.gameOver) {
             setGameStatus(
               data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
             );
+            setTurn(null);
+            if (data.winner === "X") {
+              setPlayerWins((prev) => prev + 1);
+            } else if (data.winner === "O") {
+              setIaWins((prev) => prev + 1);
+            }
             return;
           }
 
@@ -51,36 +67,59 @@ export default function Home() {
             const iaBoard = [...newBoard];
             iaBoard[data.nextMove] = "O";
             setBoard(iaBoard);
-            setIsPlayerTurn(true);
-
+            setTurn("X");
             if (data.gameOver) {
               setGameStatus(
                 data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
               );
+              setTurn(null);
+              if (data.winner === "X") {
+                setPlayerWins((prev) => prev + 1);
+              } else if (data.winner === "O") {
+                setIaWins((prev) => prev + 1);
+              }
             }
           } else {
             console.log("La IA no devolvió un movimiento.");
-            setIsPlayerTurn(true);
+            setTurn("X");
             if (data.gameOver) {
               setGameStatus(
                 data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
               );
+              setTurn(null);
             }
           }
         } else {
           console.error("Error al obtener el movimiento de la IA");
-          setIsPlayerTurn(true);
+          setTurn("X");
+          setIsAwaitingResponse(false);
         }
       }
     },
-    [board, isPlayerTurn, setBoard, gameStatus, setGameStatus]
+    [
+      board,
+      turn,
+      setBoard,
+      setTurn,
+      gameStatus,
+      setGameStatus,
+      isAwaitingResponse,
+      setIsAwaitingResponse,
+      setPlayerWins,
+      setIaWins,
+    ]
   );
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen py-8 px-4 max-w-screen-md mx-auto">
       <h1 className="text-4xl font-bold mb-8 md:text-5xl">3 en Raya</h1>
-      <GameStatus />
-      <Board board={board} onCellClick={handleCellClick} />
+      {gameStatus && <div className="text-lg font-bold mb-4">{gameStatus}</div>}
+      <div className="text-lg mb-4">Turno de: {turn}</div>
+      <Board
+        board={board}
+        onCellClick={handleCellClick}
+        disabled={turn !== "X" || gameStatus || isAwaitingResponse}
+      />
       <div className="flex justify-between w-full mt-4">
         <ResetButton onReset={resetBoard} />
         <button
@@ -90,12 +129,11 @@ export default function Home() {
           Ver Ranking
         </button>
       </div>
-
       <RankingModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        playerWins={0}
-        iaWins={0}
+        playerWins={playerWins}
+        iaWins={iaWins}
       />
     </main>
   );
