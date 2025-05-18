@@ -9,9 +9,6 @@ Este documento describe el frontend del juego Tres en Raya, construido con Next.
 - [Ejecución](#ejecución)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Interacción con el Backend](#interacción-con-el-backend)
-- [Pruebas (Opcional)](#pruebas-opcional)
-- [Contribuciones](#contribuciones)
-- [Licencia](#licencia)
 
 ## Tecnologías Utilizadas
 
@@ -53,3 +50,13 @@ frontend3enraya/
 │ └── ...
 ├── package.json
 ├── package-lock.json
+
+## Interacción con el Backend
+
+El frontend se comunica con el backend a través de las siguientes API Routes de Next.js, que actúan como proxies:
+
+- `POST /api/move`: Envía el movimiento del jugador al backend y recibe la respuesta de la IA y el estado del juego.
+- `POST /api/gameover`: Envía el resultado del juego al backend para actualizar el ranking.
+- `GET /api/ranking`: Solicita el ranking actual al backend.
+
+Asegúrate de que el backend esté en ejecución y accesible en la URL configurada (probablemente `http://localhost:3001`).
