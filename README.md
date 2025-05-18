@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Frontend del Juego Tres en Raya
 
-## Getting Started
+Este documento describe el frontend del juego Tres en Raya, construido con Next.js y React.
 
-First, run the development server:
+## Tabla de Contenidos
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- [Tecnologías Utilizadas](#tecnologías-utilizadas)
+- [Instalación](#instalación)
+- [Ejecución](#ejecución)
+- [Estructura del Proyecto](#estructura-del-proyecto)
+- [Interacción con el Backend](#interacción-con-el-backend)
+- [Pruebas (Opcional)](#pruebas-opcional)
+- [Contribuciones](#contribuciones)
+- [Licencia](#licencia)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Tecnologías Utilizadas
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- [Next.js](https://nextjs.org/): Framework de React para la creación de aplicaciones web con renderizado del lado del servidor.
+- [React](https://react.dev/): Biblioteca de JavaScript para construir interfaces de usuario.
+- [useCallback](https://react.dev/reference/react/useCallback): Hook de React para memoizar funciones.
+- [useState](https://react.dev/reference/react/useState): Hook de React para gestionar el estado local.
+- [useEffect](https://react.dev/reference/react/useEffect): Hook de React para gestionar efectos secundarios.
+- [fetch API](https://developer.mozilla.org/en-US/docs/Web/API/Fetch_API): Interfaz para realizar peticiones HTTP.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Instalación
 
-## Learn More
+1. **Requisitos:** Asegúrate de tener [Node.js](https://nodejs.org/) y [npm](https://www.npmjs.com/) (o [yarn](https://yarnpkg.com/)) instalados en tu sistema.
+2. **Clonar el repositorio:** `git clone https://github.com/JesusLemos/frontend3enraya.git`
+3. **Navegar al directorio del frontend:** `cd frontend3enraya`
+4. **Instalar las dependencias:** `npm install` (o `yarn install`)
 
-To learn more about Next.js, take a look at the following resources:
+## Ejecución
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Navegar al directorio del frontend:** `cd frontend3enraya`
+2. **Iniciar la aplicación en modo desarrollo:** `npm run dev`
+   - Esto iniciará el servidor de desarrollo de Next.js (normalmente en `http://localhost:3000`).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Estructura del Proyecto
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+frontend3enraya/
+├── app/
+│ ├── api/
+│ │ ├── gameover/
+│ │ │ └── route.js # API Route para /api/gameover del backend
+│ │ ├── move/
+│ │ │ └── route.js # API Route para /api/move del backend
+│ │ └── ranking/
+│ │ └── route.js # API Route para /api/ranking del backend
+│ └── page.js # Componente principal de la interfaz de usuario
+├── public/
+│ └── ...
+├── styles/
+│ └── ...
+├── package.json
+├── package-lock.json
