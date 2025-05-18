@@ -26,7 +26,7 @@ export default function Home() {
         console.log("modal ->", data);
         setPlayerWins(data.playerWins);
         setIaWins(data.iaWins);
-        setDraws(data.draws); // Actualiza el estado de los empates
+        setDraws(data.draws);
         setIsModalOpen(true);
       } else {
         console.error("Error al obtener el ranking");
@@ -53,63 +53,52 @@ export default function Home() {
         !gameStatus &&
         !isAwaitingResponse
       ) {
+        const boardAnterior = [...board];
         const newBoard = [...board];
         newBoard[index] = playerCard;
         setBoard(newBoard);
         setTurn(iaCard);
         setIsAwaitingResponse(true);
 
-        const response = await fetch("/api/next-move", {
+        const response = await fetch("/api/move", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ board: newBoard }),
+          body: JSON.stringify({
+            board: newBoard,
+            boardAnterior: boardAnterior,
+          }),
         });
 
         if (response.ok) {
           const data = await response.json();
-          console.log("Respuesta del backend:", data);
+          console.log("Respuesta de /api/move:", data);
           setIsAwaitingResponse(false);
+          setBoard(data.board);
 
           if (data.gameOver) {
             setGameStatus(
               data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
             );
             setTurn(null);
+            // Llamar al backend para actualizar el ranking
+            fetch("/api/gameover", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ winner: data.winner }),
+            });
             if (data.winner === playerCard) {
               setPlayerWins((prev) => prev + 1);
-            } else if (data.winner === "O") {
+            } else if (data.winner === iaCard) {
               setIaWins((prev) => prev + 1);
-            }
-            return;
-          }
-
-          if (data.nextMove !== null) {
-            const iaBoard = [...newBoard];
-            iaBoard[data.nextMove] = "O";
-            setBoard(iaBoard);
-            setTurn(playerCard);
-            if (data.gameOver) {
-              setGameStatus(
-                data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
-              );
-              setTurn(null);
-              if (data.winner === playerCard) {
-                setPlayerWins((prev) => prev + 1);
-              } else if (data.winner === "O") {
-                setIaWins((prev) => prev + 1);
-              }
+            } else {
+              setDraws((prev) => prev + 1);
             }
           } else {
-            console.log("La IA no devolvió un movimiento.");
-            setTurn(playerCard);
-            if (data.gameOver) {
-              setGameStatus(
-                data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
-              );
-              setTurn(null);
-            }
+            setTurn(data.nextMove !== null ? playerCard : iaCard); // Si la IA jugó, el siguiente turno es del jugador
           }
         } else {
           console.error("Error al obtener el movimiento de la IA");
@@ -129,7 +118,7 @@ export default function Home() {
       setIsAwaitingResponse,
       setPlayerWins,
       setIaWins,
-      playerCard,
+      setDraws,
     ]
   );
 

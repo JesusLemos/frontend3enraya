@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(req) {
   try {
-    const backendUrl = "http://localhost:3001/ranking";
+    const backendUrl = "http://localhost:3001/api/ranking";
     const response = await fetch(backendUrl);
 
     if (response.ok) {
