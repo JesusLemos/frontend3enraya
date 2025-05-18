@@ -6,20 +6,42 @@ import RankingModal from "./components/RankingModal";
 import { useState, useCallback } from "react";
 
 export default function Home() {
+  const playerCard = "X";
+  const iaCard = "O";
+
   const [board, setBoard] = useState(Array(9).fill(null));
-  const [turn, setTurn] = useState("X");
+  const [turn, setTurn] = useState(playerCard);
   const [gameStatus, setGameStatus] = useState(null);
   const [isAwaitingResponse, setIsAwaitingResponse] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [playerWins, setPlayerWins] = useState(0);
   const [iaWins, setIaWins] = useState(0);
+  const [draws, setDraws] = useState(0);
 
-  const openModal = () => setIsModalOpen(true);
+  const openModal = useCallback(async () => {
+    try {
+      const response = await fetch("/api/ranking");
+      if (response.ok) {
+        const data = await response.json();
+        console.log("modal ->", data);
+        setPlayerWins(data.playerWins);
+        setIaWins(data.iaWins);
+        setDraws(data.draws); // Actualiza el estado de los empates
+        setIsModalOpen(true);
+      } else {
+        console.error("Error al obtener el ranking");
+        alert("Error al cargar el ranking.");
+      }
+    } catch (error) {
+      console.error("Error al obtener el ranking:", error);
+      alert("Error al cargar el ranking.");
+    }
+  }, [setIsModalOpen, setPlayerWins, setIaWins, setDraws]);
   const closeModal = () => setIsModalOpen(false);
 
   const resetBoard = useCallback(() => {
     setBoard(Array(9).fill(null));
-    setTurn("X");
+    setTurn(playerCard);
     setGameStatus(null);
   }, []);
 
@@ -27,14 +49,14 @@ export default function Home() {
     async (index) => {
       if (
         board[index] === null &&
-        turn === "X" &&
+        turn === playerCard &&
         !gameStatus &&
         !isAwaitingResponse
       ) {
         const newBoard = [...board];
-        newBoard[index] = "X";
+        newBoard[index] = playerCard;
         setBoard(newBoard);
-        setTurn("O");
+        setTurn(iaCard);
         setIsAwaitingResponse(true);
 
         const response = await fetch("/api/next-move", {
@@ -55,7 +77,7 @@ export default function Home() {
               data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
             );
             setTurn(null);
-            if (data.winner === "X") {
+            if (data.winner === playerCard) {
               setPlayerWins((prev) => prev + 1);
             } else if (data.winner === "O") {
               setIaWins((prev) => prev + 1);
@@ -67,13 +89,13 @@ export default function Home() {
             const iaBoard = [...newBoard];
             iaBoard[data.nextMove] = "O";
             setBoard(iaBoard);
-            setTurn("X");
+            setTurn(playerCard);
             if (data.gameOver) {
               setGameStatus(
                 data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
               );
               setTurn(null);
-              if (data.winner === "X") {
+              if (data.winner === playerCard) {
                 setPlayerWins((prev) => prev + 1);
               } else if (data.winner === "O") {
                 setIaWins((prev) => prev + 1);
@@ -81,7 +103,7 @@ export default function Home() {
             }
           } else {
             console.log("La IA no devolvió un movimiento.");
-            setTurn("X");
+            setTurn(playerCard);
             if (data.gameOver) {
               setGameStatus(
                 data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
@@ -91,7 +113,7 @@ export default function Home() {
           }
         } else {
           console.error("Error al obtener el movimiento de la IA");
-          setTurn("X");
+          setTurn(playerCard);
           setIsAwaitingResponse(false);
         }
       }
@@ -107,6 +129,7 @@ export default function Home() {
       setIsAwaitingResponse,
       setPlayerWins,
       setIaWins,
+      playerCard,
     ]
   );
 
@@ -118,7 +141,7 @@ export default function Home() {
       <Board
         board={board}
         onCellClick={handleCellClick}
-        disabled={turn !== "X" || gameStatus || isAwaitingResponse}
+        disabled={turn !== playerCard || gameStatus || isAwaitingResponse}
       />
       <div className="flex justify-between w-full mt-4">
         <ResetButton onReset={resetBoard} />
@@ -134,6 +157,7 @@ export default function Home() {
         onClose={closeModal}
         playerWins={playerWins}
         iaWins={iaWins}
+        draws={draws}
       />
     </main>
   );
