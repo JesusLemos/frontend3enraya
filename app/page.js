@@ -4,6 +4,7 @@ import Board from "./components/Board";
 import ResetButton from "./components/ResetButton";
 import RankingModal from "./components/RankingModal";
 import { useState, useCallback } from "react";
+import RankingButton from "./components/RankingButton";
 
 export default function Home() {
   const playerCard = "X";
@@ -78,9 +79,12 @@ export default function Home() {
           setBoard(data.board);
 
           if (data.gameOver) {
-            setGameStatus(
-              data.winner ? `¡${data.winner} ha ganado!` : "¡Empate!"
-            );
+            const statusText = data.winner
+              ? data.winner === playerCard
+                ? "¡Ganó Player!"
+                : "¡Ganó IA!"
+              : "¡Empate!";
+            setGameStatus(statusText);
             setTurn(null);
             // Llamar al backend para actualizar el ranking
             fetch("/api/gameover", {
@@ -123,31 +127,32 @@ export default function Home() {
   );
 
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen py-8 px-4 max-w-screen-md mx-auto">
-      <h1 className="text-4xl font-bold mb-8 md:text-5xl">3 en Raya</h1>
-      {gameStatus && <div className="text-lg font-bold mb-4">{gameStatus}</div>}
-      <div className="text-lg mb-4">Turno de: {turn}</div>
-      <Board
-        board={board}
-        onCellClick={handleCellClick}
-        disabled={turn !== playerCard || gameStatus || isAwaitingResponse}
-      />
-      <div className="flex justify-between w-full mt-4">
-        <ResetButton onReset={resetBoard} />
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded md:py-3 md:px-6 md:text-lg"
-          onClick={openModal}
-        >
-          Ver Ranking
-        </button>
-      </div>
-      <RankingModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
-        playerWins={playerWins}
-        iaWins={iaWins}
-        draws={draws}
-      />
-    </main>
+    <div className="flex justify-center items-center min-h-screen bg-amber-100 p-4">
+      <main className="flex flex-col items-center bg-amber-700 p-8 rounded-lg shadow-xl w-full max-w-md">
+        <h1 className="text-3xl font-bold text-white mb-6 md:text-4xl">
+          3 en Raya
+        </h1>
+        {gameStatus && (
+          <div className="text-lg font-bold text-white mb-4">{gameStatus}</div>
+        )}
+        <div className="text-lg text-white mb-4">Turno de: {turn}</div>
+        <Board
+          board={board}
+          onCellClick={handleCellClick}
+          disabled={turn !== playerCard || gameStatus || isAwaitingResponse}
+        />
+        <div className="flex justify-between w-full mt-6">
+          <ResetButton onReset={resetBoard} />
+          <RankingButton onModal={openModal} />
+        </div>
+        <RankingModal
+          isOpen={isModalOpen}
+          onClose={closeModal}
+          playerWins={playerWins}
+          iaWins={iaWins}
+          draws={draws}
+        />
+      </main>
+    </div>
   );
 }

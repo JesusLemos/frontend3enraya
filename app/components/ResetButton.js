@@ -5,8 +5,8 @@ export default function ResetButton({ onReset }) {
   // Recibe onReset como prop
   return (
     <button
-      className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded md:py-3 md:px-6 md:text-lg"
-      onClick={onReset} // Usa la función onReset pasada como prop
+      className="bg-amber-500 hover:bg-amber-600 text-gray-800 font-bold py-2 px-4 rounded md:py-3 md:px-6 md:text-lg transition-colors duration-200"
+      onClick={onReset}
     >
       Reiniciar
     </button>

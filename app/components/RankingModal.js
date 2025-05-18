@@ -7,14 +7,25 @@ const RankingModal = ({ isOpen, onClose, playerWins, iaWins, draws }) => {
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-      <div className="bg-white p-6 rounded-md shadow-lg">
-        <h2 className="text-xl font-bold mb-4">Ranking</h2>
-        <p>Victorias del Jugador: {playerWins}</p>
-        <p>Victorias de la IA: {iaWins}</p>
-        <p>Empates: {draws}</p>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-10">
+      <div className="bg-white p-6 rounded-lg shadow-lg text-center w-full max-w-md">
+        <h2 className="text-3xl font-bold text-gray-800 mb-6">Ranking</h2>
+        <div className="mb-4 text-lg text-gray-700">
+          <p className="mb-2">
+            Victorias del Jugador:{" "}
+            <span className="text-blue-500 font-semibold">{playerWins}</span>
+          </p>
+          <p className="mb-2">
+            Victorias de la IA:{" "}
+            <span className="text-red-500 font-semibold">{iaWins}</span>
+          </p>
+          <p>
+            Empates:{" "}
+            <span className="text-gray-600 font-semibold">{draws}</span>
+          </p>
+        </div>
         <button
-          className="mt-4 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded"
+          className="bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200"
           onClick={onClose}
         >
           Cerrar

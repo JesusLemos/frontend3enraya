@@ -1,11 +1,10 @@
-import Link from "next/link";
-
-export default function RankingButton() {
+export default function RankingButton({ onModal }) {
   return (
-    <Link href="/ranking">
-      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded md:py-3 md:px-6 md:text-lg">
-        Ver Ranking
-      </button>
-    </Link>
+    <button
+      className="bg-sky-500 hover:bg-sky-600 text-white font-bold py-2 px-4 rounded md:py-3 md:px-6 md:text-lg transition-colors duration-200"
+      onClick={onModal}
+    >
+      Ver Ranking
+    </button>
   );
 }
